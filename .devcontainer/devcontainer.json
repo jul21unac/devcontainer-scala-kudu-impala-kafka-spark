@@ -1,16 +1,14 @@
 {
-  "name": "scala-kudu-impala-kafka-spark",
+  "name": "scala-kudu-impala-kafka-spark_1",
   "image": "mcr.microsoft.com/devcontainers/java:3-11-trixie",
   "features": {
-    "ghcr.io/devcontainers/features/java:11": {
-      "version": "none",
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "11",
       "installMaven": "true",
       "installGradle": "false"
-    },
-    "ghcr.io/devcontainers-contrib/features/scala-sdkman:2": {
-      "version": "2.12.21"
     }
   },
+
   "customizations": {
     "vscode": {
       "extensions": [
