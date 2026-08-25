@@ -1,4 +1,4 @@
-package com.kuduTest
+package com.StreamSpark.kuduTest
 
 import org.apache.kudu.spark.kudu._
 import org.apache.spark.sql.SparkSession

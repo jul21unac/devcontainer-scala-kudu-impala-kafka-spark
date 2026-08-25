@@ -1,4 +1,4 @@
-package com.kuduTest
+package com.StreamSpark.kuduTest
 
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.StructType

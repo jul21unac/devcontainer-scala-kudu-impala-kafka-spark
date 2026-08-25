@@ -1,4 +1,4 @@
-package com.sparkTest
+package com.StreamSpark.sparkTest
 
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
