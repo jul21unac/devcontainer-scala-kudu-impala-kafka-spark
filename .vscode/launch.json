@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "scala",
+      "request": "launch",
+      "name": "App",
+      "mainClass": "com.StreamSpark.App",
+      "buildTarget": "file:/workspaces/devcontainer-scala-kudu-impala-kafka-spark/?id=.",
+      "args": [],
+      "jvmOptions": [],
+      "env": {}
+    }
+  ]
+}
