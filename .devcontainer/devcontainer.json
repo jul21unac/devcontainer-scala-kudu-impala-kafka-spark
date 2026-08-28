@@ -1,6 +1,7 @@
 {
   "name": "scala-kudu-impala-kafka-spark_1",
   "image": "mcr.microsoft.com/devcontainers/java:3-11-trixie",
+  "dockerComposeFile": "docker-compose-kudu.yml",
   "features": {
     "ghcr.io/devcontainers/features/java:1": {
       "version": "11",
