@@ -1,0 +1,128 @@
+services:
+  kudu-master-1:
+    image: apache/kudu:latest
+    container_name: kudu-master-1
+    ports:
+      - "7051:7051"
+      - "8051:8051"
+    command: ["master"]
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+    networks:
+      - kudu-net
+    environment:
+      - KUDU_MASTERS=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051
+      - MASTER_ARGS=--rpc_authentication=disabled --rpc_bind_addresses=0.0.0.0:7051 --rpc_advertised_addresses=kudu-master-1:7051 --webserver_port=8051 --unlock_unsafe_flags=true
+
+  kudu-master-2:
+    image: apache/kudu:latest
+    container_name: kudu-master-2
+    ports:
+      - "7052:7051"
+      - "8052:8051"
+    command: ["master"]
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+    networks:
+      - kudu-net
+    environment:
+      - KUDU_MASTERS=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051
+      - MASTER_ARGS=--rpc_authentication=disabled --rpc_bind_addresses=0.0.0.0:7051 --rpc_advertised_addresses=kudu-master-2:7051 --webserver_port=8051 --unlock_unsafe_flags=true
+
+  kudu-master-3:
+    image: apache/kudu:latest
+    container_name: kudu-master-3
+    ports:
+      - "7053:7051"
+      - "8053:8051"
+    command: ["master"]
+    deploy:
+      resources:
+        limits:
+          memory: 300M
+    networks:
+      - kudu-net
+    environment:
+      - KUDU_MASTERS=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051
+      - MASTER_ARGS=--rpc_authentication=disabled --rpc_bind_addresses=0.0.0.0:7051 --rpc_advertised_addresses=kudu-master-3:7051 --webserver_port=8051 --unlock_unsafe_flags=true
+
+  kudu-tserver-1:
+    image: apache/kudu:latest
+    container_name: kudu-tserver-1
+    depends_on:
+      - kudu-master-1
+      - kudu-master-2
+      - kudu-master-3
+    ports:
+      - "7050:7050"
+      - "8050:8050"
+    command: ["tserver"]
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          memory: 600M
+    networks:
+      - kudu-net
+
+    environment:
+      - KUDU_MASTERS=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051
+      - TSERVER_ARGS=--unlock_unsafe_flags=true 
+  impala:
+    image: apache/kudu:impala-latest
+    container_name: kudu-impala
+    command: 
+        - "impala"
+    depends_on:
+      kudu-tserver-1:
+        condition: service_started
+      kudu-master-1:
+        condition: service_started
+      kudu-master-2:
+        condition: service_started
+      kudu-master-3:
+        condition: service_started
+      hive-metastore:
+        condition: service_started
+    ports:
+      - "21000:21000"
+      - "21050:21050"
+      - "25000:25000"
+      - "25010:25010"
+      - "25020:25020"
+    deploy:
+      resources:
+        limits:
+          memory: 4096M   # ← mínimo recomendado
+    volumes:
+      - ./hive-site.xml:/opt/impala/conf/hive-site.xml           
+    networks:
+      - kudu-net
+    environment:
+      - KUDU_MASTERS=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051
+      - JAVA_TOOL_OPTIONS="-Xmx300M"
+
+
+  hive-metastore:
+    image: apache/hive:4.0.0
+    container_name: hive-metastore
+    ports:
+      - "9083:9083"
+    environment:
+      - SERVICE_NAME=metastore
+    volumes:
+      - hive-warehouse:/opt/hive/data/warehouse
+    networks:
+      - kudu-net
+  
+volumes:
+  hive-warehouse:
+
+networks:
+  kudu-net:
+    driver: bridge
+
