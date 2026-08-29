@@ -1,4 +1,13 @@
 services:
+
+  scala-java-11:
+    image: ghcr.io/devcontainers/features/java:1
+    container_name : scala-java-11
+    environment:
+      - version = "11"
+      - installMaven = "true",
+      - installGradle = "false"
+
   kudu-master-1:
     image: apache/kudu:latest
     container_name: kudu-master-1
