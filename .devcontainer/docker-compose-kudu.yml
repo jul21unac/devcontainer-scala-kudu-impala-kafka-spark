@@ -1,12 +1,10 @@
 services:
 
-  scala-java-11:
-    image: ghcr.io/devcontainers/features/java:1
-    container_name : scala-java-11
-    environment:
-      - version = "11"
-      - installMaven = "true",
-      - installGradle = "false"
+  scala-kudu-impala-kafka-spark:
+    build:
+      context: ..
+      dockerfile: .devcontainer/DockerFile    
+
 
   kudu-master-1:
     image: apache/kudu:latest

@@ -1,0 +1,10 @@
+FROM mcr.microsoft.com/devcontainers/java:1-11-bullseye
+
+# Instalar Scala
+RUN apt-get update && apt-get install -y scala
+
+# Instalar Maven (si no viene)
+RUN apt-get install -y maven
+
+# Configurar workspace
+WORKDIR /workspace
