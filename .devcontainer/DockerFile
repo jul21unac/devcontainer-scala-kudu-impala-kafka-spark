@@ -1,10 +1,6 @@
-FROM mcr.microsoft.com/devcontainers/java:1-11-bullseye
+FROM eclipse-temurin:11-jdk-focal
 
-# Instalar Scala
-RUN apt-get update && apt-get install -y scala
-
-# Instalar Maven (si no viene)
-RUN apt-get install -y maven
-
-# Configurar workspace
+RUN apt-get update && export DEBIAN_FRONTEND=noninteractive && \
+    apt-get install -y maven && \
+    rm -rf /var/lib/apt/lists/*
 WORKDIR /workspace

@@ -2,14 +2,7 @@
   "name": "scala-kudu-impala-kafka-spark",
   "dockerComposeFile": "docker-compose-kudu.yml",
   "service": "scala-kudu-impala-kafka-spark",
-  "workspaceFolder": "workspace",
-  "features": {
-    "ghcr.io/devcontainers/features/java:1": {
-      "version": "11",
-      "installMaven": "true",
-      "installGradle": "false"
-    }
-  },
+  "workspaceFolder": "/workspace/",
 
   "customizations": {
     "vscode": {
@@ -26,5 +19,5 @@
     }
   },
   "postCreateCommand": "mvn -B -DskipTests compile",
-  "remoteUser": "vscode"
+  "remoteUser": "root"
 }
