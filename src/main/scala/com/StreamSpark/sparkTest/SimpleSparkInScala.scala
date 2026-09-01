@@ -22,7 +22,8 @@ object SimpleSparkInScala {
   }
 
   def testImpala(): Unit = {
-    val spark = SparkSession.builder()
+    val spark = SparkSession
+      .builder()
       .appName("ImpalaExample")
       .master("local")
       .getOrCreate()
