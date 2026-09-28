@@ -10,7 +10,7 @@ object RunKuduTest {
 
 
 
-val KUDU_MASTERS = "127.0.0.1:7051,127.0.0.1:7052,127.0.0.1:7053"
+val KUDU_MASTERS = "kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051"
 
 def main(args: Array[String]): Unit = {
 
