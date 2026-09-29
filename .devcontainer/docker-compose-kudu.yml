@@ -1,15 +1,13 @@
 services:
-
   scala-kudu-impala-kafka-spark:
     build:
       context: ..
-      dockerfile: .devcontainer/DockerFile   
+      dockerfile: .devcontainer/DockerFile
     volumes:
       - ..:/workspace:cached
     command: sleep infinity
     networks:
-      - kudu-net    
-     
+      - kudu-net
 
   kudu-master-1:
     image: apache/kudu:latest
@@ -83,12 +81,15 @@ services:
 
     environment:
       - KUDU_MASTERS=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051
-      - TSERVER_ARGS=--unlock_unsafe_flags=true 
+      - TSERVER_ARGS=--unlock_unsafe_flags=true
   impala:
     image: apache/kudu:impala-latest
     container_name: kudu-impala
-    command: 
-        - "impala"
+    command:
+      - "impalad"
+      - "--kudu_master_hosts=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051"
+      - "--hostname=impala"
+      - "--use_local_catalog=true"
     depends_on:
       kudu-tserver-1:
         condition: service_started
@@ -109,15 +110,14 @@ services:
     deploy:
       resources:
         limits:
-          memory: 4096M   # ← mínimo recomendado
+          memory: 4096M # ← mínimo recomendado
     volumes:
-      - ./hive-site.xml:/opt/impala/conf/hive-site.xml           
+      - ./hive-site.xml:/opt/impala/conf/hive-site.xml
     networks:
       - kudu-net
     environment:
       - KUDU_MASTERS=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051
       - JAVA_TOOL_OPTIONS="-Xmx300M"
-
 
   hive-metastore:
     image: apache/hive:4.0.0
@@ -130,11 +130,10 @@ services:
       - hive-warehouse:/opt/hive/data/warehouse
     networks:
       - kudu-net
-  
+
 volumes:
   hive-warehouse:
 
 networks:
   kudu-net:
     driver: bridge
-
