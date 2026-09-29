@@ -117,7 +117,9 @@ services:
       - kudu-net
     environment:
       - KUDU_MASTERS=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051
-      - JAVA_TOOL_OPTIONS="-Xmx300M"
+      - JAVA_TOOL_OPTIONS="-Xmx1G"
+      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+      - LD_LIBRARY_PATH=/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64:/usr/local/lib:/usr/lib
 
   hive-metastore:
     image: apache/hive:4.0.0
