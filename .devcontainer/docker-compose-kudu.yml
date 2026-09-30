@@ -86,10 +86,7 @@ services:
     image: apache/kudu:impala-latest
     container_name: kudu-impala
     command:
-      - "impalad"
-      - "--kudu_master_hosts=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051"
-      - "--hostname=impala"
-      - "--use_local_catalog=true"
+      - "impala"
     depends_on:
       kudu-tserver-1:
         condition: service_started
@@ -117,9 +114,7 @@ services:
       - kudu-net
     environment:
       - KUDU_MASTERS=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051
-      - JAVA_TOOL_OPTIONS="-Xmx1G"
-      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-      - LD_LIBRARY_PATH=/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64:/usr/local/lib:/usr/lib
+      - JAVA_TOOL_OPTIONS="-Xmx300M"
 
   hive-metastore:
     image: apache/hive:4.0.0
