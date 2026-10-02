@@ -107,7 +107,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 4096M # ← mínimo recomendado
+          memory: 1G # ← mínimo recomendado
     volumes:
       - ./hive-site.xml:/opt/impala/conf/hive-site.xml
     networks:

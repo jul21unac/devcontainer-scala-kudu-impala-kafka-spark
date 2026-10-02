@@ -18,7 +18,7 @@ object SimpleSparkInScala {
     val simpleRDD = sc.parallelize(list)
     simpleRDD.foreach { x => println(x) }
 
-    testImpala()
+    testHive()
   }
 
   def testImpala(): Unit = {
@@ -28,7 +28,7 @@ object SimpleSparkInScala {
       .master("local")
       .getOrCreate()
 
-    val impalaUrl = "jdbc:hive2://localhost:21050/default;auth=noSasl"
+    val impalaUrl = "jdbc:hive2://impala:21050/default;auth=noSasl"
     val driver = "org.apache.hive.jdbc.HiveDriver"
 
     // 1. Crear la tabla en Impala (ejecutar SQL directo vía JDBC)
@@ -65,6 +65,41 @@ object SimpleSparkInScala {
       .option("driver", driver)
       .mode("append")
       .save()
+
+    spark.stop()
+  }
+
+  def testHive(): Unit = {
+    /*    val spark = SparkSession.builder()
+      .appName("HiveTableExample")
+      .config("hive.metastore.uris", "thrift://localhost:9083")  // O host.docker.internal si Spark en Docker
+      .config("spark.sql.warehouse.dir", "/opt/hive/data/warehouse")
+      .enableHiveSupport()
+      .getOrCreate()
+     */
+
+    val spark = SparkSession
+      .builder()
+      .appName("HiveTableExample")
+      .config("hive.metastore.uris", "thrift://hive-metastore:9083")
+      .enableHiveSupport() // sin .config("spark.sql.warehouse.dir", ...)
+      .getOrCreate()
+
+    spark.sql("""
+    CREATE TABLE IF NOT EXISTS mi_tabla_5 (
+      id INT,
+      nombre STRING
+    )
+    STORED AS PARQUET
+    LOCATION 'hdfs://namenode:8020/user/hive/warehouse/mi_tabla_5'
+  """)
+
+    spark.sql("""
+  insert into mi_tabla_5 values (2, 'lalal')
+""")
+
+    val resultado = spark.sql("SELECT * FROM mi_tabla_5")
+    resultado.show() // Muestra todas las filas (20 por defecto)
 
     spark.stop()
   }

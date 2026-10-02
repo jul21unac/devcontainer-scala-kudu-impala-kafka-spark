@@ -8,24 +8,21 @@ import java.util
 
 object RunKuduTest {
 
+  val KUDU_MASTERS = "kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051"
 
+  def main(args: Array[String]): Unit = {
 
-val KUDU_MASTERS = "kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051"
-
-def main(args: Array[String]): Unit = {
-
-
-
-    val spark = SparkSession.builder()
+    val spark = SparkSession
+      .builder()
       .appName("CreateKuduTable")
-       .master("local[*]")
+      .master("local[*]")
       .config("spark.driver.host", "127.0.0.1")
       .config("hive.metastore.uris", "thrift://127.0.0.1:9083")
       .config("spark.kudu.operation.timeout.ms", "60000")
       .config("spark.kudu.admin.operation.timeout.ms", "60000")
-      .enableHiveSupport()  // sin .config("spark.sql.warehouse.dir", ...)
+      .enableHiveSupport() // sin .config("spark.sql.warehouse.dir", ...)
       .getOrCreate()
-     /* .appName("CreateKuduTable")
+    /* .appName("CreateKuduTable")
       .master("local[*]")
       .getOrCreate()*/
 
@@ -34,21 +31,24 @@ def main(args: Array[String]): Unit = {
 
     val tableName = "staging.test_tabla"
 
-
-
     // 2. Definir el schema
-    val schema = StructType(Seq(
-      StructField("id",     IntegerType, nullable = false),
-      StructField("nombre", StringType,  nullable = true),
-      StructField("valor",  DoubleType,  nullable = true)
-    ))
+    val schema = StructType(
+      Seq(
+        StructField("id", IntegerType, nullable = false),
+        StructField("nombre", StringType, nullable = true),
+        StructField("valor", DoubleType, nullable = true)
+      )
+    )
 
     // 3. Definir la clave primaria y opciones de la tabla
     val primaryKey = List("id")
 
     val tableOptions = new CreateTableOptions()
-      .setNumReplicas(1)                          
-      .addHashPartitions(util.Arrays.asList("id"), 2)  // Mínimo 2 buckets requerido por Kudu
+      .setNumReplicas(1)
+      .addHashPartitions(
+        util.Arrays.asList("id"),
+        2
+      ) // Mínimo 2 buckets requerido por Kudu
 
     // 4. Crear la tabla si no existe
     if (!kuduContext.tableExists(tableName)) {
@@ -62,34 +62,31 @@ def main(args: Array[String]): Unit = {
     import spark.implicits._
     val datos = Seq(
       (1, "Alice", 100.0),
-      (2, "Bob",   200.0),
+      (2, "Bob", 200.0),
       (3, "Carlos", 300.0)
     ).toDF("id", "nombre", "valor")
 
- /*   kuduContext.insertRows(datos, tableName)
+    /*   kuduContext.insertRows(datos, tableName)
     println("✅ Datos insertados")
-*/
-    datos.write.format("org.apache.kudu.spark.kudu")
-    .option("kudu.master", KUDU_MASTERS)
-    .option("kudu.table", tableName)  
-    .mode("append")  
-    .save()
+     */
+    datos.write
+      .format("org.apache.kudu.spark.kudu")
+      .option("kudu.master", KUDU_MASTERS)
+      .option("kudu.table", tableName)
+      .mode("append")
+      .save()
 
-     println("✅ Datos insertados usando DataFrame API")
+    println("✅ Datos insertados usando DataFrame API")
     // 6. Leer la tabla de vuelta
-   val df_read = spark.read
+    val df_read = spark.read
       .options(Map("kudu.master" -> KUDU_MASTERS, "kudu.table" -> tableName))
       .format("org.apache.kudu.spark.kudu")
       .load()
-      
-      df_read.show()  // Muestra los datos leídos de Kudu
+
+    df_read.show() // Muestra los datos leídos de Kudu
 
     spark.stop()
   }
-    
-    def createKuduTable(kuduContext: KuduContext, tableName: String): Unit = {
- 
-    }
+
+  def createKuduTable(kuduContext: KuduContext, tableName: String): Unit = {}
 }
-
-
