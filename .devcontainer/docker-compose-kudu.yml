@@ -20,6 +20,8 @@ services:
       resources:
         limits:
           memory: 300M
+    volumes:
+      - kudu-master-1-data:/var/lib/kudu
     networks:
       - kudu-net
     environment:
@@ -37,6 +39,8 @@ services:
       resources:
         limits:
           memory: 300M
+    volumes:
+      - kudu-master-2-data:/var/lib/kudu          
     networks:
       - kudu-net
     environment:
@@ -54,6 +58,8 @@ services:
       resources:
         limits:
           memory: 300M
+    volumes:
+      - kudu-master-3-data:/var/lib/kudu
     networks:
       - kudu-net
     environment:
@@ -104,10 +110,6 @@ services:
       - "25000:25000"
       - "25010:25010"
       - "25020:25020"
-    deploy:
-      resources:
-        limits:
-          memory: 1G # ← mínimo recomendado
     volumes:
       - ./hive-site.xml:/opt/impala/conf/hive-site.xml
     networks:
@@ -130,6 +132,9 @@ services:
 
 volumes:
   hive-warehouse:
+  kudu-master-1-data:
+  kudu-master-2-data:
+  kudu-master-3-data:
 
 networks:
   kudu-net:
