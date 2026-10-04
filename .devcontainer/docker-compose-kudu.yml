@@ -40,7 +40,7 @@ services:
         limits:
           memory: 300M
     volumes:
-      - kudu-master-2-data:/var/lib/kudu          
+      - kudu-master-2-data:/var/lib/kudu
     networks:
       - kudu-net
     environment:
@@ -126,14 +126,30 @@ services:
     environment:
       - SERVICE_NAME=metastore
     volumes:
-      - hive-warehouse:/opt/hive/data/warehouse
+      - ./hive-site.xml:/opt/hive/conf/hive-site.xml
+    networks:
+      - kudu-net
+
+  minio:
+    image: cleanstart/minio:latest
+    container_name: minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
     networks:
       - kudu-net
 
 volumes:
-  hive-warehouse:
   kudu-master-1-data:
   kudu-master-2-data:
+  minio-data:
+    driver: local
   kudu-master-3-data:
 
 networks:
