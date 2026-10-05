@@ -20,8 +20,6 @@ services:
       resources:
         limits:
           memory: 300M
-    volumes:
-      - kudu-master-1-data:/var/lib/kudu
     networks:
       - kudu-net
     environment:
@@ -39,8 +37,6 @@ services:
       resources:
         limits:
           memory: 300M
-    volumes:
-      - kudu-master-2-data:/var/lib/kudu
     networks:
       - kudu-net
     environment:
@@ -58,8 +54,6 @@ services:
       resources:
         limits:
           memory: 300M
-    volumes:
-      - kudu-master-3-data:/var/lib/kudu
     networks:
       - kudu-net
     environment:
@@ -135,22 +129,18 @@ services:
     container_name: minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: minio
-      MINIO_ROOT_PASSWORD: minio123
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password123
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
-      - minio-data:/data
+      - ./minio/data:/data
     networks:
       - kudu-net
 
 volumes:
-  kudu-master-1-data:
-  kudu-master-2-data:
   minio-data:
-    driver: local
-  kudu-master-3-data:
 
 networks:
   kudu-net:
