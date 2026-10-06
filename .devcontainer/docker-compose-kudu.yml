@@ -125,7 +125,7 @@ services:
       - kudu-net
 
   minio:
-    image: cleanstart/minio:latest
+    image: airbyte/minio:RELEASE.2023-11-20T22-40-07Z
     container_name: minio
     command: server /data --console-address ":9001"
     environment:

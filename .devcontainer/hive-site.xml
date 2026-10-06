@@ -8,7 +8,7 @@
 
   <property>
     <name>fs.defaultFS</name>
-    <value>s3a://</value>
+    <value>file:///</value>
   </property>
 
   <property>
