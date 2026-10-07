@@ -1,3 +1,7 @@
 .metals/
 .bloop/
 target/
+.minio/data/*
+**/minio/data/
+.devcontainer/minio/data/
+.devcontainer/minio/
