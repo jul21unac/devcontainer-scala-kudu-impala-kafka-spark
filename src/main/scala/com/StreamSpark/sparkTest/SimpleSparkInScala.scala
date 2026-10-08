@@ -77,28 +77,52 @@ object SimpleSparkInScala {
       .enableHiveSupport()
       .getOrCreate()
      */
-
+    val ake = "MpV3o8kVYR2d3Lp1gRPn"
+    val sk = "QELgEuFQGx9siULGCrnuTvi8D2cbqJHbnBT2owbw"
     val spark = SparkSession
       .builder()
       .appName("HiveTableExample")
       .config("hive.metastore.uris", "thrift://hive-metastore:9083")
-      .enableHiveSupport() // sin .config("spark.sql.warehouse.dir", ...)
+      .config("spark.hadoop.fs.s3a.endpoint", "http://minio:9000")
+      .config("spark.hadoop.fs.s3a.path.style.access", "true")
+      .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
+      .config("spark.hadoop.fs.s3a.access.key", ake)
+      .config("spark.hadoop.fs.s3a.secret.key", sk)
+      .enableHiveSupport()
       .getOrCreate()
 
+    println(
+      spark.sparkContext.hadoopConfiguration.get("fs.s3a.access.key")
+    )
+    println(
+      spark.sparkContext.hadoopConfiguration.get("fs.s3a.endpoint")
+    )
+    println(
+      spark.sparkContext.hadoopConfiguration.get("fs.s3a.endpoint")
+    )
+
+    println(org.apache.hadoop.util.VersionInfo.getVersion)
+    println(classOf[org.apache.hadoop.fs.s3a.S3AFileSystem])
+
+    spark
+      .sql("""
+    DESCRIBE DATABASE EXTENDED test_2_minio
+    """)
+      .show(false)
+
     spark.sql("""
-    CREATE TABLE IF NOT EXISTS mi_tabla_5 (
+    CREATE TABLE IF NOT EXISTS test_2_minio.mi_tabla_6 (
       id INT,
       nombre STRING
     )
-    STORED AS PARQUET
-    LOCATION 'hdfs://namenode:8020/user/hive/warehouse/mi_tabla_5'
+    STORED AS TEXTFILE
   """)
 
     spark.sql("""
-  insert into mi_tabla_5 values (2, 'lalal')
+  insert into test_2_minio.mi_tabla_6 values (2, 'lalal')
 """)
 
-    val resultado = spark.sql("SELECT * FROM mi_tabla_5")
+    val resultado = spark.sql("SELECT * FROM test_2_minio.mi_tabla_6")
     resultado.show() // Muestra todas las filas (20 por defecto)
 
     spark.stop()

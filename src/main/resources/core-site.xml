@@ -8,7 +8,7 @@
 
   <property>
       <name>fs.defaultFS</name>
-      <value>hdfs://namenode:9000</value>
+      <value>file:///</value>
   </property>
 
   <property>
