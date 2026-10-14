@@ -111,7 +111,7 @@ object SimpleSparkInScala {
       .show(false)
 
     spark.sql("""
-    CREATE TABLE IF NOT EXISTS test_2_minio.mi_tabla_6 (
+    CREATE TABLE IF NOT EXISTS test_2_minio.mi_tabla_7 (
       id INT,
       nombre STRING
     )
@@ -119,10 +119,10 @@ object SimpleSparkInScala {
   """)
 
     spark.sql("""
-  insert into test_2_minio.mi_tabla_6 values (2, 'lalal')
+  insert into test_2_minio.mi_tabla_7 values (2, 'lalal')
 """)
 
-    val resultado = spark.sql("SELECT * FROM test_2_minio.mi_tabla_6")
+    val resultado = spark.sql("SELECT * FROM test_2_minio.mi_tabla_7")
     resultado.show() // Muestra todas las filas (20 por defecto)
 
     spark.stop()

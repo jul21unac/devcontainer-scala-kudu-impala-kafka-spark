@@ -17,7 +17,7 @@ object RunKuduTest {
       .appName("CreateKuduTable")
       .master("local[*]")
       .config("spark.driver.host", "127.0.0.1")
-      .config("hive.metastore.uris", "thrift://127.0.0.1:9083")
+      .config("hive.metastore.uris", "thrift://hive-metastore:9083")
       .config("spark.kudu.operation.timeout.ms", "60000")
       .config("spark.kudu.admin.operation.timeout.ms", "60000")
       .enableHiveSupport() // sin .config("spark.sql.warehouse.dir", ...)

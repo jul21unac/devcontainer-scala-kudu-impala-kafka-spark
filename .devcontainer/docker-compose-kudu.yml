@@ -82,36 +82,22 @@ services:
     environment:
       - KUDU_MASTERS=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051
       - TSERVER_ARGS=--unlock_unsafe_flags=true
-  impala:
-    image: apache/kudu:impala-latest
-    container_name: kudu-impala
-    command:
-      - "impala"
+
+  trino:
+    image: trinodb/trino:472
+    container_name: trino
     depends_on:
-      kudu-tserver-1:
-        condition: service_started
-      kudu-master-1:
-        condition: service_started
-      kudu-master-2:
-        condition: service_started
-      kudu-master-3:
-        condition: service_started
-      hive-metastore:
-        condition: service_started
+      - hive-metastore
+      - minio
+      - kudu-master-1
+      - kudu-master-2
+      - kudu-master-3
     ports:
-      - "21000:21000"
-      - "21050:21050"
-      - "25000:25000"
-      - "25010:25010"
-      - "25020:25020"
-    volumes:
-      - ./hive-site.xml:/opt/impala/conf/hive-site.xml
-      - ./core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+      - "8085:8080"
     networks:
       - kudu-net
-    environment:
-      - KUDU_MASTERS=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051
-      - JAVA_TOOL_OPTIONS="-Xmx300M"
+    volumes:
+      - ./trino/catalog:/etc/trino/catalog
 
   hive-metastore:
     image: apache/hive:4.0.0

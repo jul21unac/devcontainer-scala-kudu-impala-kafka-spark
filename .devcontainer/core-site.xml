@@ -46,4 +46,19 @@
     <value>s3a://warehouse/</value>
   </property>
 
+  <property>
+      <name>fs.s3a.aws.credentials.provider</name>
+      <value>org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider</value>
+  </property>
+
+  <property>
+      <name>fs.s3a.endpoint.region</name>
+      <value>us-east-1</value>
+  </property>
+
+  <property>
+      <name>fs.s3a.signing-algorithm</name>
+      <value>S3SignerType</value>
+  </property>
+
 </configuration>

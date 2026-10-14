@@ -46,4 +46,9 @@
     <value>s3a://warehouse/</value>
   </property>
 
+  <property>
+      <name>fs.s3a.aws.credentials.provider</name>
+      <value>org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider</value>
+  </property>
+
 </configuration>
