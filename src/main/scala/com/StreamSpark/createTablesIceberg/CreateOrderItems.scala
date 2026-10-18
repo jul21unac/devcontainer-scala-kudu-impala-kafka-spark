@@ -1,20 +1,17 @@
 package com.StreamSpark.createTablesIceberg
-package com.StreamSpark.createTablesKudu
-import org.apache.kudu.spark.kudu._
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
 import org.apache.spark.sql.SparkSession
-import org.apache.kudu.client.CreateTableOptions
-import org.apache.spark.sql.types._
-import java.net.InetAddress
-import java.util
 
 object CreateOrderItems {
 
   def main(args: Array[String]): Unit = {
 
-     val ake = "MpV3o8kVYR2d3Lp1gRPn"
+    val ake = "MpV3o8kVYR2d3Lp1gRPn"
     val sk = "QELgEuFQGx9siULGCrnuTvi8D2cbqJHbnBT2owbw"
     val spark = SparkSession
       .builder()
+      .master("local[*]")
       .appName("HiveTableExample")
       .config("hive.metastore.uris", "thrift://hive-metastore:9083")
       .config("spark.hadoop.fs.s3a.endpoint", "http://minio:9000")
@@ -22,26 +19,31 @@ object CreateOrderItems {
       .config("spark.hadoop.fs.s3a.connection.ssl.enabled", "false")
       .config("spark.hadoop.fs.s3a.access.key", ake)
       .config("spark.hadoop.fs.s3a.secret.key", sk)
+      .config(
+        "spark.sql.catalog.hive_prod",
+        "org.apache.iceberg.spark.SparkCatalog"
+      )
+      .config("spark.sql.catalog.hive_prod.type", "hive")
+      .config("spar.sql.catalog.hive_prod.uri", "thrift://hive-metastore:9083")
       .enableHiveSupport()
       .getOrCreate()
 
-
-
+//"order_id","order_item_id","product_id","seller_id","shipping_limit_date","price","freight_value"
+    spark.sql("SHOW CATALOGS").show(false)
+    spark.sql("SHOW NAMESPACES IN hive_prod").show(false)
 
     spark.sql("""
-    CREATE TABLE IF NOT EXISTS test_2_minio.mi_tabla_7 (
-      id INT,
-      nombre STRING
-    )
-    STORED AS TEXTFILE
+        CREATE TABLE hive_prod.orders.order_items (
+          order_id STRING,
+          order_item_id INT,
+          product_id STRING,
+          seller_id STRING,
+          shipping_limit_date Timestamp,
+          price DOUBLE,
+          freight_value DOUBLE
+        )
+        USING iceberg
   """)
-
-    spark.sql("""
-  insert into test_2_minio.mi_tabla_7 values (2, 'lalal')
-""")
-
-    val resultado = spark.sql("SELECT * FROM test_2_minio.mi_tabla_7")
-    resultado.show() // Muestra todas las filas (20 por defecto)
 
     spark.stop()
 
