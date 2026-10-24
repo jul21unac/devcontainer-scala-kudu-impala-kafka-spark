@@ -1,8 +1,6 @@
 services:
   scala-kudu-impala-kafka-spark:
-    build:
-      context: ..
-      dockerfile: .devcontainer/DockerFile
+    image : maven:3-eclipse-temurin-11
     volumes:
       - ..:/workspace:cached
     command: sleep infinity
