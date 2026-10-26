@@ -19,7 +19,7 @@ object CreateTableGeolocation extends SparkKudu {
         StructField("geolocation_id", IntegerType, nullable = false),
         StructField(
           "geolocation_zip_code_prefix",
-          IntegerType,
+          StringType,
           nullable = false
         ),
         StructField("geolocation_lat", DoubleType, nullable = false),
@@ -42,12 +42,11 @@ object CreateTableGeolocation extends SparkKudu {
       ) // Mínimo 2 buckets requerido por Kudu
 
     // 4. Crear la tabla si no existe
-    if (!kuduContext.tableExists(tableName)) {
-      kuduContext.createTable(tableName, schema, primaryKey, tableOptions)
-      println(s"✅ Tabla '$tableName' create table ok")
-    } else {
-      println(s"⚠️  the table '$tableName' exists")
-    }
+
+    kuduContext.deleteTable(tableName) // Eliminar la tabla si existe
+    kuduContext.createTable(tableName, schema, primaryKey, tableOptions)
+    println(s"✅ Tabla '$tableName' create table ok")
+
     println("\n" + "=" * 60)
     println(s"✅ End of $tableName process")
     println("=" * 60)
