@@ -7,7 +7,7 @@ class ReadIcebergTable extends SparkIceberg {
 
     val df = spark.read
       .format("iceberg")
-      .load("hive_prod." + tableName)
+      .load(tableName)
 
     df
   }
