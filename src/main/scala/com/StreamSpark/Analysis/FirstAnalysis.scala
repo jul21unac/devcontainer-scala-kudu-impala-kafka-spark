@@ -12,7 +12,7 @@ object FirstAnalysis {
 
   def main(args: Array[String]): Unit = {
 
-    customerAnalysis()
+    productAnalysis()
 
   }
 
@@ -58,6 +58,19 @@ object FirstAnalysis {
 
     finalDF.filter("Count > 1").orderBy(desc("Count")).show(10)
 
+    val groupDf = geoDF
+      .groupBy("geolocation_city", "geolocation_state")
+      .agg(count("*").as("Count"))
+
+    groupDf.orderBy(desc("Count")).show(10)
+
+    groupDf.orderBy(asc("Count")).show(10)
+
+    val groupDfState = geoDF
+      .groupBy("geolocation_state")
+      .agg(count("*").as("Count"))
+    groupDfState.orderBy(asc("Count")).show(10)
+    groupDfState.orderBy(desc("Count")).show(10)
   }
 
   def customerAnalysis(): Unit = {
@@ -72,6 +85,16 @@ object FirstAnalysis {
       customerDf.groupBy("customer_unique_id").agg(count("*").as("Count"))
 
     dfGroup.filter("Count > 1").show(5)
+
+  }
+
+  def productAnalysis(): Unit = {
+    val prodDf = kuduread.readKuduTable("master.products")
+
+    val groupProd =
+      prodDf.groupBy("product_category_name").agg(count("*").as("Count"))
+
+    groupProd.orderBy(desc("Count")).show(10)
 
   }
 
