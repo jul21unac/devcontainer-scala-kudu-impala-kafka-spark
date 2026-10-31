@@ -12,7 +12,7 @@ object FirstAnalysis {
 
   def main(args: Array[String]): Unit = {
 
-    productAnalysis()
+    orderAnalysis()
 
   }
 
@@ -95,6 +95,50 @@ object FirstAnalysis {
       prodDf.groupBy("product_category_name").agg(count("*").as("Count"))
 
     groupProd.orderBy(desc("Count")).show(10)
+
+  }
+
+  def orderAnalysis(): Unit = {
+
+    val dfOrder = iread.readIcebergTable("hive_prod.orders.orders")
+
+    val dfGroupOrder =
+      dfOrder.groupBy("order_status").agg(count("order_status"))
+
+    dfGroupOrder.show(5)
+
+    val dfOrderDates = dfOrder
+      .withColumn(
+        "Diff_purchase_delyvery_carrier",
+        datediff(
+          col("order_delivered_carrier_date"),
+          col("order_purchase_timestamp")
+        )
+      )
+      .withColumn(
+        "Diff_purchase_delyvery_customer",
+        date_diff(
+          col("order_delivered_customer_date"),
+          col("order_purchase_timestamp")
+        )
+      )
+      .withColumn(
+        "Diff_estimated_delyvery_customer",
+        date_diff(
+          col("order_estimated_delivery_date"),
+          col("order_purchase_timestamp")
+        )
+      )
+
+    val dfSeleColum =
+      dfOrderDates.select(
+        "order_id",
+        "Diff_purchase_delyvery_carrier",
+        "Diff_purchase_delyvery_customer",
+        "Diff_estimated_delyvery_customer"
+      )
+
+    dfSeleColum.show(10, false)
 
   }
 
