@@ -4,6 +4,7 @@ import org.apache.spark.sql.functions._
 
 import com.StreamSpark.utils.ReadIcebergTable
 import com.StreamSpark.utils.ReadKuduTable
+import org.apache.spark.sql.expressions._
 
 object FirstAnalysis {
 
@@ -12,7 +13,7 @@ object FirstAnalysis {
 
   def main(args: Array[String]): Unit = {
 
-    orderAnalysis()
+    orderPayment()
 
   }
 
@@ -139,6 +140,26 @@ object FirstAnalysis {
       )
 
     dfSeleColum.show(10, false)
+
+  }
+
+  def orderPayment(): Unit = {
+
+    val dfPayment = iread.readIcebergTable("hive_prod.orders.order_payments")
+
+    val dfOrder = iread.readIcebergTable("hive_prod.orders.orders")
+
+    val dfJoin = dfOrder.join(dfPayment, "order_id")
+
+    val wind = Window.partitionBy("customer_id")
+
+    val dfFinal = dfJoin
+      .withColumn("Total_Orders", count("*").over(wind))
+      .withColumn("Avg", avg("payment_value").over(wind))
+      .withColumn("Min", min("payment_value").over(wind))
+      .withColumn("Total_spend", sum("payment_value").over(wind))
+
+    dfFinal.orderBy(desc("Total_Orders")).show(10, false)
 
   }
 
