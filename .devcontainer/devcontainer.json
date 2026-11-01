@@ -1,9 +1,8 @@
 {
   "name": "scala-kudu-impala-kafka-spark",
-  "dockerComposeFile": "docker-compose-kudu.yml",
+  "dockerComposeFile": "docker-compose-kudu-kafka.yml",
   "service": "scala-kudu-impala-kafka-spark",
   "workspaceFolder": "/workspace/",
-
   "customizations": {
     "vscode": {
       "extensions": [
