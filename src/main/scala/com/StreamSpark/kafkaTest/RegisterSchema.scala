@@ -1,58 +1,53 @@
 package com.StreamSpark.kafkaTest
-import java.net.URI
-import java.net.http.{HttpClient, HttpRequest, HttpResponse}
+import org.apache.kafka.clients.admin.{Admin, AdminClientConfig, NewTopic}
+import org.apache.kafka.common.config.TopicConfig
+
+import java.util.Properties
+import scala.jdk.CollectionConverters._
+import scala.util.{Failure, Success, Try}
 
 object RegisterSchema {
 
   def main(args: Array[String]): Unit = {
 
-    val keySchema = """{
-    "type": "record",
-    "name": "KeySchema",
-    "fields": [
-        {"name": "id", "type": "string"}
-    ] }"""
+    // 1. Configurar las propiedades de conexión al clúster de Kafka
+    val props = new Properties()
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
 
-    val valueSchema = """{
-    "type": "record",
-    "name": "ValueSchema",
-    "fields": [
-        {"name": "name", "type": "string"},
-        {"name": "age", "type": "int"},
-        {"name": "email", "type": "string"}
-    ] }"""
+    // 2. Crear la instancia del cliente Admin de forma segura con Try
+    val admin = Admin.create(props)
 
-    registerSchema("my-key-schema", keySchema)
-    registerSchema("my-value-schema", valueSchema)
+    val topicName = "mi-topic-scala_julio"
+    val numPartitions = 3
+    val replicationFactor: Short = 1 // Ajustar según los brokers disponibles
 
-  }
+    // 3. Instanciar la clase NewTopic pasándole los parámetros requeridos
+    val newTopic = new NewTopic(topicName, numPartitions, replicationFactor)
 
-  def registerSchema(schemaName: String, schemaDefinition: String): Unit = {
-    val url = s"http://schema-registry:8081/subjects/$schemaName/versions"
-    val requestBody = s"""{"schema": "$schemaDefinition"}"""
+    // Opcional: Agregar configuraciones específicas convirtiendo un Map de Scala a Java
+    val topicConfig = Map(
+      TopicConfig.CLEANUP_POLICY_CONFIG -> TopicConfig.CLEANUP_POLICY_COMPACT,
+      TopicConfig.RETENTION_MS_CONFIG -> "604800000" // 7 días de retención
+    )
+    newTopic.configs(topicConfig.asJava)
 
-    println(url)
+    println(s"Enviando solicitud de creación para: $topicName")
 
-    val request = HttpRequest
-      .newBuilder()
-      .uri(URI.create(url))
-      .header("Content-Type", "application/vnd.schemaregistry.v1+json")
-      .POST(HttpRequest.BodyPublishers.ofString(requestBody))
-      .build()
+    // 4. Ejecutar la creación (se envuelve la lista de Scala a una colección de Java)
+    val result = admin.createTopics(List(newTopic).asJava)
 
-    println("aqui")
-
-    val client = HttpClient.newHttpClient()
-    val response = client.send(request, HttpResponse.BodyHandlers.ofString())
-
-    if (response.statusCode() == 200) {
-      println(s"Schema '$schemaName' registered successfully.")
-    } else {
-      println(
-        s"Failed to register schema '$schemaName'. Response code: ${response.statusCode()}"
-      )
-      println(s"Response body: ${response.body()}")
+    // 5. Resolver el Future de Java de manera síncrona
+    Try(result.values().get(topicName).get()) match {
+      case Success(_) =>
+        println(s"¡El topic '$topicName' se creó exitosamente!")
+      case Failure(exception) =>
+        System.err.println(
+          s"Error al intentar crear el topic: ${exception.getMessage}"
+        )
     }
+
+    // 6. Cerrar los recursos del cliente Admin
+    admin.close()
 
   }
 
