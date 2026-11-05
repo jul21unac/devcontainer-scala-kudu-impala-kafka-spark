@@ -31,6 +31,8 @@ services:
       CONFLUENT_METRICS_ENABLE: "true"
       CONFLUENT_SUPPORT_CUSTOMER_ID: "anonymous"
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+    networks:
+      - kudu-net
 
   schema-registry:
     image: confluentinc/cp-schema-registry:7.9.6
@@ -48,35 +50,8 @@ services:
       SCHEMA_REGISTRY_HOST_NAME: schema-registry
       SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS: "broker:29092"
       SCHEMA_REGISTRY_LISTENERS: http://0.0.0.0:8081
-
-  connect:
-    image: cnfldemos/cp-server-connect-datagen:0.6.4-7.6.0
-    hostname: connect
-    container_name: connect
-    deploy:
-      resources:
-        limits:
-          memory: 1G
-    depends_on:
-      - broker
-      - schema-registry
-    ports:
-      - "8083:8083"
-    environment:
-      CONNECT_BOOTSTRAP_SERVERS: "broker:29092"
-      CONNECT_REST_ADVERTISED_HOST_NAME: connect
-      CONNECT_GROUP_ID: compose-connect-group
-      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
-      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
-      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
-      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
-      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
-      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
-      CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-      CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: http://schema-registry:8081
-      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
+    networks:
+      - kudu-net
 
   ksqldb-server:
     image: confluentinc/cp-ksqldb-server:7.9.6
@@ -88,7 +63,6 @@ services:
           memory: 300M
     depends_on:
       - broker
-      - connect
     ports:
       - "8088:8088"
     environment:
@@ -98,10 +72,11 @@ services:
       KSQL_LISTENERS: "http://0.0.0.0:8088"
       KSQL_CACHE_MAX_BYTES_BUFFERING: 0
       KSQL_KSQL_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
-      KSQL_KSQL_CONNECT_URL: "http://connect:8083"
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_REPLICATION_FACTOR: 1
       KSQL_KSQL_LOGGING_PROCESSING_TOPIC_AUTO_CREATE: "true"
       KSQL_KSQL_LOGGING_PROCESSING_STREAM_AUTO_CREATE: "true"
+    networks:
+      - kudu-net
 
   control-center:
     image: confluentinc/cp-enterprise-control-center:7.9.6
@@ -110,18 +85,17 @@ services:
     deploy:
       resources:
         limits:
-          memory: 600M
+          memory: 300M
     depends_on:
       - broker
       - schema-registry
-      - connect
       - ksqldb-server
     ports:
       - "9021:9021"
+    networks:
+      - kudu-net
     environment:
       CONTROL_CENTER_BOOTSTRAP_SERVERS: "broker:29092"
-      CONTROL_CENTER_CONNECT_CONNECT-DEFAULT_CLUSTER: "connect:8083"
-      CONTROL_CENTER_CONNECT_HEALTHCHECK_ENDPOINT: "/connectors"
       CONTROL_CENTER_KSQL_KSQLDB1_URL: "http://ksqldb-server:8088"
       CONTROL_CENTER_KSQL_KSQLDB1_ADVERTISED_URL: "http://localhost:8088"
       CONTROL_CENTER_SCHEMA_REGISTRY_URL: "http://schema-registry:8081"
@@ -212,20 +186,6 @@ services:
     environment:
       - KUDU_MASTERS=kudu-master-1:7051,kudu-master-2:7051,kudu-master-3:7051
       - TSERVER_ARGS=--unlock_unsafe_flags=true
-
-  trino:
-    image: trinodb/trino:472
-    container_name: trino
-    depends_on:
-      - kudu-master-1
-      - kudu-master-2
-      - kudu-master-3
-    ports:
-      - "8085:8080"
-    networks:
-      - kudu-net
-    volumes:
-      - ./trino_kudu/catalog:/etc/trino/catalog
 
 networks:
   kudu-net:

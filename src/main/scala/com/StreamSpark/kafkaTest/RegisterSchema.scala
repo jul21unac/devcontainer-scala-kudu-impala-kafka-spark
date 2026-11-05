@@ -12,7 +12,7 @@ object RegisterSchema {
 
     // 1. Configurar las propiedades de conexión al clúster de Kafka
     val props = new Properties()
-    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092")
+    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, "broker:29092")
 
     // 2. Crear la instancia del cliente Admin de forma segura con Try
     val admin = Admin.create(props)
