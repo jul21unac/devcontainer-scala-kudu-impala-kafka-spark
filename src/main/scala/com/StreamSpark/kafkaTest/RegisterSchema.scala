@@ -5,10 +5,62 @@ import org.apache.kafka.common.config.TopicConfig
 import java.util.Properties
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
+import io.confluent.kafka.schemaregistry.avro.AvroSchema
 
 object RegisterSchema {
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit = { registerSchema() }
+
+  def registerSchema(): Unit = {
+    val schemaRegistryUrl = "http://schema-registry:8081"
+    val schemaRegistryClient =
+      new CachedSchemaRegistryClient(schemaRegistryUrl, 100)
+
+    val keySchema =
+      """
+    |{
+    | "type":"record",
+    | "name":"ProductKey",
+    | "fields":[
+    |   {"name":"product_id","type":"long"}
+    | ]
+    |}
+    |""".stripMargin
+
+    schemaRegistryClient.register(
+      "mi-topic-scala_julio-key",
+      new AvroSchema(keySchema)
+    )
+
+    val subject = "mi-topic-scala_julio-value"
+    val schemaString =
+      """
+        |{
+        |  "type": "record",
+        |  "name": "MiRegistro",
+        |  "namespace": "com.ejemplo",
+        |  "fields": [
+        |    {"name": "id", "type": "int"},
+        |    {"name": "nombre", "type": "string"},
+        |    {"name": "edad", "type": ["null", "int"], "default": null}
+        |  ]
+        |}
+        |""".stripMargin
+
+    val avroSchema = new AvroSchema(schemaString)
+
+    Try(schemaRegistryClient.register(subject, avroSchema)) match {
+      case Success(schemaId) =>
+        println(s"¡Esquema registrado exitosamente con ID: $schemaId")
+      case Failure(exception) =>
+        System.err.println(
+          s"Error al registrar el esquema: ${exception.getMessage}"
+        )
+    }
+  }
+
+  def testCreateSchema(): Unit = {
 
     // 1. Configurar las propiedades de conexión al clúster de Kafka
     val props = new Properties()
@@ -48,7 +100,6 @@ object RegisterSchema {
 
     // 6. Cerrar los recursos del cliente Admin
     admin.close()
-
   }
 
 }
