@@ -7,6 +7,11 @@ import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try}
 import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 import io.confluent.kafka.schemaregistry.avro.AvroSchema
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions._
+import org.apache.spark.sql.avro.functions._
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types._
 
 object RegisterSchema {
 
@@ -100,6 +105,57 @@ object RegisterSchema {
 
     // 6. Cerrar los recursos del cliente Admin
     admin.close()
+  }
+
+  def writeToKafka(): Unit = {
+
+    val spark = SparkSession
+      .builder()
+      .appName("test")
+      .master("local[*]")
+      .getOrCreate()
+
+    val schema = StructType(
+      Seq(
+        StructField("product_id", LongType),
+        StructField("id", IntegerType),
+        StructField("nombre", StringType),
+        StructField("edad", IntegerType, true)
+      )
+    )
+
+    val rows = Seq(
+      Row(1L, 1, "Juan", 30),
+      Row(2L, 2, "Ana", null)
+    )
+
+    val df = spark.createDataFrame(
+      spark.sparkContext.parallelize(rows),
+      schema
+    )
+
+    val kafkaDf =
+      df.select(
+        to_avro(
+          struct(
+            col("product_id")
+          )
+        ).as("key"),
+
+        to_avro(
+          struct(
+            col("id"),
+            col("nombre"),
+            col("edad")
+          )
+        ).as("value")
+      )
+
+    kafkaDf.write
+      .format("kafka")
+      .option("kafka.bootstrap.servers", "broker:29092")
+      .option("topic", "mi-topic-scala_julio")
+      .save()
   }
 
 }
