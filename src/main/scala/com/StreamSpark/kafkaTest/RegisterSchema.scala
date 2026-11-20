@@ -15,7 +15,7 @@ import org.apache.spark.sql.types._
 
 object RegisterSchema {
 
-  def main(args: Array[String]): Unit = { registerSchema() }
+  def main(args: Array[String]): Unit = { writeToKafkaText() }
 
   def registerSchema(): Unit = {
     val schemaRegistryUrl = "http://schema-registry:8081"
@@ -75,7 +75,7 @@ object RegisterSchema {
     val admin = Admin.create(props)
 
     val topicName = "mi-topic-scala_julio"
-    val numPartitions = 3
+    val numPartitions = 1
     val replicationFactor: Short = 1 // Ajustar según los brokers disponibles
 
     // 3. Instanciar la clase NewTopic pasándole los parámetros requeridos
@@ -143,6 +143,55 @@ object RegisterSchema {
         ).as("key"),
 
         to_avro(
+          struct(
+            col("id"),
+            col("nombre"),
+            col("edad")
+          )
+        ).as("value")
+      )
+
+    kafkaDf.write
+      .format("kafka")
+      .option("kafka.bootstrap.servers", "broker:29092")
+      .option("topic", "mi-topic-scala_julio")
+      .save()
+  }
+
+  def writeToKafkaText(): Unit = {
+
+    val spark = SparkSession
+      .builder()
+      .appName("test")
+      .master("local[*]")
+      .getOrCreate()
+
+    val schema = StructType(
+      Seq(
+        StructField("product_id", LongType),
+        StructField("id", IntegerType),
+        StructField("nombre", StringType),
+        StructField("edad", IntegerType, true)
+      )
+    )
+
+    val rows = Seq(
+      Row(1L, 1, "Juan", 30),
+      Row(2L, 2, "Ana", null)
+    )
+
+    val df = spark.createDataFrame(
+      spark.sparkContext.parallelize(rows),
+      schema
+    )
+
+    val kafkaDf =
+      df.select(
+        col("product_id")
+          .cast("string")
+          .as("key"),
+
+        to_json(
           struct(
             col("id"),
             col("nombre"),
