@@ -15,10 +15,11 @@ import org.apache.spark.sql.types._
 
 object RegisterSchema {
 
-  def main(args: Array[String]): Unit = { writeToKafkaText() }
+  def main(args: Array[String]): Unit = { println("ENTRO EN WRITE_TO_KAFKA_TEXT")
+    writeToKafkaText() }
 
   def registerSchema(): Unit = {
-    val schemaRegistryUrl = "http://schema-registry:8081"
+    val schemaRegistryUrl = "http://localhost:8081"
     val schemaRegistryClient =
       new CachedSchemaRegistryClient(schemaRegistryUrl, 100)
 
@@ -153,13 +154,13 @@ object RegisterSchema {
 
     kafkaDf.write
       .format("kafka")
-      .option("kafka.bootstrap.servers", "broker:29092")
+      .option("kafka.bootstrap.servers", "broker:9092")
       .option("topic", "mi-topic-scala_julio")
       .save()
   }
 
   def writeToKafkaText(): Unit = {
-
+    println("aqui")
     val spark = SparkSession
       .builder()
       .appName("test")
@@ -202,7 +203,7 @@ object RegisterSchema {
 
     kafkaDf.write
       .format("kafka")
-      .option("kafka.bootstrap.servers", "broker:29092")
+      .option("kafka.bootstrap.servers", "localhost:9092")
       .option("topic", "mi-topic-scala_julio")
       .save()
   }
