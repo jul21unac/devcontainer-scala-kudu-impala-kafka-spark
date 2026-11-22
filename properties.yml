@@ -1,0 +1,13 @@
+kafka:
+  bootstrapServers: "broker:9092"
+
+schema:
+  registryUrl: http://localhost:8081
+
+#todo
+kudu:
+
+hive:
+
+iceberg:
+

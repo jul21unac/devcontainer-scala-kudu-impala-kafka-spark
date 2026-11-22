@@ -146,7 +146,23 @@
     <artifactId>spark-sql-kafka-0-10_2.12</artifactId>
     <version>3.5.8</version>
 </dependency>
+      <dependency>
+          <groupId>io.circe</groupId>
+          <artifactId>circe-core_2.12</artifactId>
+          <version>0.14.10</version>
+      </dependency>
 
+      <dependency>
+          <groupId>io.circe</groupId>
+          <artifactId>circe-generic_2.12</artifactId>
+          <version>0.14.10</version>
+      </dependency>
+
+      <dependency>
+          <groupId>io.circe</groupId>
+          <artifactId>circe-yaml_2.12</artifactId>
+          <version>0.15.2</version>
+      </dependency>
   </dependencies>
 
   <build>

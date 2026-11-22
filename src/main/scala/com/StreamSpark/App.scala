@@ -1,5 +1,7 @@
 package com.StreamSpark
 
+import com.StreamSpark.utils.LoadConfig
+
 /** @author
   *   ${user.name}
   */
@@ -9,7 +11,12 @@ object App {
 
   def main(args: Array[String]) {
     println("Hello World!")
-    println("concat arguments = " + foo(args))
+    //println("concat arguments = " + foo(args))
+
+    val testLoad = new LoadConfig
+
+    testLoad.loadTest()
+
   }
 
 }

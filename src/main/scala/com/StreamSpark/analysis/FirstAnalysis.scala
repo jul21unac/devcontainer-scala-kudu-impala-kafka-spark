@@ -1,4 +1,4 @@
-package com.StreamSpark.Analysis
+package com.StreamSpark.analysis
 
 import org.apache.spark.sql.functions._
 
