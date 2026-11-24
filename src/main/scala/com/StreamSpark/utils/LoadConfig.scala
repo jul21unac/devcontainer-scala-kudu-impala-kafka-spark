@@ -6,24 +6,25 @@ import scala.io.Source
 
 class LoadConfig {
 
+  val propertiesFile =  "properties.yml"
 
-  def loadTest(): Unit = {
-    val yamlString =
-      Source
-        .fromFile("properties.yml")
-        .mkString
+  def getConfig(downF : String, property : String): String = {
+
+    val yamlString = Source.fromFile(propertiesFile).mkString
 
     val json = parser.parse(yamlString).toOption.get
 
-    val brokers =
+    val value =
       json.hcursor
-        .downField("kafka")
-        .get[String]("bootstrapServers")
+        .downField(downF)
+        .get[String](property)
         .toOption
         .get
 
-    println(brokers)
+    value
 
   }
+
+
 
 }

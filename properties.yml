@@ -1,7 +1,5 @@
 kafka:
-  bootstrapServers: "broker:9092"
-
-schema:
+  bootstrapServers: "localhost:9092"
   registryUrl: http://localhost:8081
 
 #todo

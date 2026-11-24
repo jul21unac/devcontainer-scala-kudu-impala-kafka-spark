@@ -1,5 +1,6 @@
 package com.StreamSpark
 
+import com.StreamSpark.kafka.KafkaUtils
 import com.StreamSpark.utils.LoadConfig
 
 /** @author
@@ -15,8 +16,13 @@ object App {
 
     val testLoad = new LoadConfig
 
-    testLoad.loadTest()
+    val tstvalue = testLoad.getConfig("kafka","registryUrl")
 
+    println(tstvalue)
+
+    val kafkaU =  new KafkaUtils
+    //kafkaU.createTopic("orders.order")
+    kafkaU.deleteTopic("mi-topic-scala_julio")
   }
 
 }
