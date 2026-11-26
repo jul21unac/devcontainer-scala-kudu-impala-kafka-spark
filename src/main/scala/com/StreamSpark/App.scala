@@ -22,7 +22,40 @@ object App {
 
     val kafkaU =  new KafkaUtils
     //kafkaU.createTopic("orders.order")
-    kafkaU.deleteTopic("mi-topic-scala_julio")
+    //kafkaU.deleteTopic("mi-topic-scala_julio")
+
+   /*
+    val subjKey = """
+      |{
+      | "type":"record",
+      | "name":"ProductKey",
+      | "fields":[
+      |   {"name":"product_id","type":"long"}
+      | ]
+      |}
+      |"""
+
+
+
+    kafkaU.loadSchema( "orders.order-key", subjKey)
+    */
+
+    val subjectValue =
+        """
+                          |{
+                          |  "type": "record",
+                          |  "name": "MiRegistro",
+                          |  "namespace": "com.ejemplo",
+                          |  "fields": [
+                          |    {"name": "id", "type": "int"},
+                          |    {"name": "nombre", "type": "string"},
+                          |    {"name": "edad", "type": ["null", "int"], "default": null}
+                          |  ]
+                          |}
+                          |"""
+
+    kafkaU.loadSchema( "orders.order-value", subjectValue)
+
   }
 
 }

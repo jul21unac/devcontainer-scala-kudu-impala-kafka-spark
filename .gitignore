@@ -5,3 +5,4 @@ target/
 **/minio/data/
 .devcontainer/minio/data/
 .devcontainer/minio/
+.idea

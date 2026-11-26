@@ -5,6 +5,8 @@ import org.apache.kafka.common.config.TopicConfig
 import java.util.{Collections, Properties}
 import scala.util.{Failure, Success, Try}
 import com.StreamSpark.utils._
+import io.confluent.kafka.schemaregistry.avro.AvroSchema
+import io.confluent.kafka.schemaregistry.client.CachedSchemaRegistryClient
 
 import scala.jdk.CollectionConverters._
 
@@ -77,13 +79,20 @@ class KafkaUtils {
       }
     }
 
-  def loadSchema(topicName :String , schema :String) : Unit = {
+  def loadSchema(subject :String , schema :String) : Unit = {
+
+    val schemaRegistryClient =
+      new CachedSchemaRegistryClient(schemaRegistryUrl, 100)
+
+    val schemaStrip = schema.stripMargin
+
+    schemaRegistryClient.register(
+      subject,
+      new AvroSchema(schemaStrip)
+    )
 
 
 
   }
-
-
-
 
 }
